@@ -48,7 +48,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Utilities;
 import jdk.jshell.execution.Util;
-
+import javax.swing.JDialog;
+import br.sistemalojaroupas.view.factories.Contracts.CustomerDialogFactory;
+import br.sistemalojaroupas.view.factories.EditCustomerFactory;
 /**
  *
  * @author lukas
@@ -65,7 +67,7 @@ public class Home extends javax.swing.JFrame implements DataChangeListener {
     
     private int mouseX;
     private int mouseY;
-    
+    private CustomerDialogFactory customerFactory = new EditCustomerFactory();
     private Map<String, Object> productSelectedFilters = new HashMap<>();
     
     private final String PERMISSION_ERROR = "Você não tem permissão para acessar esta funcionalidade.";
@@ -2462,19 +2464,22 @@ public class Home extends javax.swing.JFrame implements DataChangeListener {
         if (!hasPermission("customer")) {
             JOptionPane.showMessageDialog(this, PERMISSION_ERROR, "Erro", JOptionPane.ERROR_MESSAGE);
             return;
-        }
+        } 
         int selectedRow = tableCustomers.getSelectedRow();
 
         if (selectedRow > -1) {
-
             DefaultTableModel dtm = (DefaultTableModel) tableCustomers.getModel();
-
+            
             String cpf = (String) dtm.getValueAt(selectedRow, 1);
+ 
             Customer customer = CustomerDao.findByCpf(cpf);
 
-            Register_And_Edit_Customer dialog = new Register_And_Edit_Customer(null, true, customer);
+            JDialog dialog = customerFactory.createDialog(null, true, customer);
+            
             dialog.setVisible(true);
+            
             Utils.updateTable(CustomerDao.findAll(), tableCustomers);
+            
         } else {
             JOptionPane.showMessageDialog(null, "Você deve selecionar um cliente para poder editar.",
                     "Erro", JOptionPane.ERROR_MESSAGE);
